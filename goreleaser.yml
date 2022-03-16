@@ -1,0 +1,8 @@
+.bin_publish:
+  script:
+    - goreleaser build --snapshot
+
+.gh_release:
+  script:
+    - goreleaser check
+    - goreleaser release
