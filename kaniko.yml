@@ -1,5 +1,6 @@
 .baseVariables:
   variables:
+    DOCKERFILE_PATH: ./Dockerfile
     REGISTRY_ENDPOINT: registry.gitlab.com/christiantragesser
     IMAGE_REGISTRY_APP: ${REGISTRY_ENDPOINT}/${IMAGE_NAME}
     IMAGE_COMMIT_TAG: ${CI_COMMIT_SHORT_SHA}
@@ -19,10 +20,10 @@
 
 .executor: &kaniko-exec
     - /kaniko/executor
-      --context $CI_PROJECT_DIR
-      --dockerfile $IMAGE_FILE_PATH/Dockerfile
-      --destination $IMAGE_REGISTRY_APP:$IMAGE_COMMIT_TAG
-      --destination $IMAGE_REGISTRY_APP:latest
+      --context ${CI_PROJECT_DIR}
+      --dockerfile ${DOCKERFILE_PATH}
+      --destination ${IMAGE_REGISTRY_APP}:${IMAGE_COMMIT_TAG}
+      --destination ${IMAGE_REGISTRY_APP}:latest
       --skip-unused-stages
       --target ${DOCKER_BUILD_STAGE}
       ${KANIKO_ADDITIONAL_ARGS}
