@@ -1,8 +1,17 @@
+.goreleaser_container:
+  image:
+    name: goreleaser/goreleaser
+    entrypoint: [""]
+
 .bin_publish:
+  extends:
+    - .goreleaser_container
   script:
     - goreleaser build --snapshot
 
 .gh_release:
+  extends:
+    - .goreleaser_container
   script:
     - goreleaser check
     - goreleaser release
