@@ -1,9 +1,3 @@
-.baseVariables:
-  variables:
-    REGISTRY_ENDPOINT: registry.gitlab.com/christiantragesser
-    IMAGE_REGISTRY_APP: ${REGISTRY_ENDPOINT}/${IMAGE_NAME}
-    IMAGE_COMMIT_TAG: ${CI_COMMIT_SHORT_SHA}
-
 .setup: &kaniko-setup
   - mkdir -p /kaniko/.docker
   - |
@@ -19,21 +13,40 @@
 
 .executor: &kaniko-exec
     - /kaniko/executor
-      --context $CI_PROJECT_DIR
-      --dockerfile $IMAGE_FILE_PATH/Dockerfile
-      --destination $IMAGE_REGISTRY_APP:$IMAGE_COMMIT_TAG
-      --destination $IMAGE_REGISTRY_APP:latest
+      --context ${CI_PROJECT_DIR}
+      --dockerfile ${DOCKERFILE_PATH}
+      --destination ${IMAGE_REGISTRY_APP}:${IMAGE_COMMIT_TAG}
+      --destination ${IMAGE_REGISTRY_APP}:latest
       --skip-unused-stages
       --target ${DOCKER_BUILD_STAGE}
       ${KANIKO_ADDITIONAL_ARGS}
 
-.kaniko:
+.intermodal_container:
   image:
-    name: gcr.io/kaniko-project/executor:debug
+    name: registry.gitlab.com/christiantragesser/gitlab-ci-templates/intermodal
     entrypoint: [""]
+
+.baseVariables:
+  variables:
+    DOCKERFILE_PATH: ./Dockerfile
+    REGISTRY_ENDPOINT: registry.gitlab.com/christiantragesser
+    IMAGE_REGISTRY_APP: ${REGISTRY_ENDPOINT}/${IMAGE_NAME}
+    IMAGE_COMMIT_TAG: ${CI_COMMIT_SHORT_SHA}
+
+.kaniko_publish:
   extends:
+    - .intermodal_container
     - .baseVariables
   script:
     - *kaniko-setup
     - *kaniko-exec
 
+.kaniko_release:
+  extends:
+    - .intermodal_container
+    - .baseVariables
+  script:
+    - *kaniko-setup
+    - crane tag ${IMAGE_REGISTRY_APP}:${CI_COMMIT_SHORT_SHA} ${CI_COMMIT_TAG}
+  rules:
+    - if: '$CI_COMMIT_TAG && $CI_COMMIT_TAG =~ /^v(0|(?:[1-9]\d*))(?:\.(0|(?:[1-9]\d*))(?:\.(0|(?:[1-9]\d*)))?(?:\-([\w][\w\.\-_]*))?)?/'

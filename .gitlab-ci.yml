@@ -1,0 +1,21 @@
+variables:
+  IMAGE_NAME: intermodal
+
+include:
+  - local: kaniko.yml
+
+stages:
+  - publish
+
+publish:container:
+  stage: publish
+  extends:
+    - .kaniko_publish
+    - .default_branch_only
+  variables:
+    DOCKERFILE_PATH: ./pkg/Dockerfile.intermodal
+    DOCKER_BUILD_STAGE: publish
+  rules:
+    - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
+      changes:
+        - pkg/Dockerfile.intermodal
