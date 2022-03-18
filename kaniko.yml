@@ -1,10 +1,3 @@
-.baseVariables:
-  variables:
-    DOCKERFILE_PATH: ./Dockerfile
-    REGISTRY_ENDPOINT: registry.gitlab.com/christiantragesser
-    IMAGE_REGISTRY_APP: ${REGISTRY_ENDPOINT}/${IMAGE_NAME}
-    IMAGE_COMMIT_TAG: ${CI_COMMIT_SHORT_SHA}
-
 .setup: &kaniko-setup
   - mkdir -p /kaniko/.docker
   - |
@@ -28,24 +21,32 @@
       --target ${DOCKER_BUILD_STAGE}
       ${KANIKO_ADDITIONAL_ARGS}
 
-.kaniko:
+.intermodal_container:
   image:
-    name: gcr.io/kaniko-project/executor:debug
+    name: registry.gitlab.com/christiantragesser/gitlab-ci-templates/intermodal
     entrypoint: [""]
+
+.baseVariables:
+  variables:
+    DOCKERFILE_PATH: ./Dockerfile
+    REGISTRY_ENDPOINT: registry.gitlab.com/christiantragesser
+    IMAGE_REGISTRY_APP: ${REGISTRY_ENDPOINT}/${IMAGE_NAME}
+    IMAGE_COMMIT_TAG: ${CI_COMMIT_SHORT_SHA}
+
+.kaniko_publish:
   extends:
+    - .intermodal_container
     - .baseVariables
   script:
     - *kaniko-setup
     - *kaniko-exec
 
 .kaniko_release:
-  image:
-    name: gcr.io/go-containerregistry/crane
-    entrypoint: [""]
   extends:
+    - .intermodal_container
     - .baseVariables
   script:
-    - crane auth login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
+    - *kaniko-setup
     - crane tag ${IMAGE_REGISTRY_APP}:${CI_COMMIT_SHORT_SHA} ${IMAGE_REGISTRY_APP}:${CI_COMMIT_TAG}
   rules:
     - if: '$CI_COMMIT_TAG && $CI_COMMIT_TAG =~ /^v(0|(?:[1-9]\d*))(?:\.(0|(?:[1-9]\d*))(?:\.(0|(?:[1-9]\d*)))?(?:\-([\w][\w\.\-_]*))?)?/'

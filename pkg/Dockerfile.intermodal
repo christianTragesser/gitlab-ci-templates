@@ -1,0 +1,9 @@
+## Provide source and dependencies ##
+FROM golang:1.17-alpine AS source
+RUN CGO_ENABLED=0 GOOS=linux go get -u -ldflags '-extldflags "-static" -w -s' github.com/google/go-containerregistry/cmd/crane
+
+## Create container image ##
+FROM gcr.io/kaniko-project/executor:debug as publish
+COPY --from=source /go/bin/crane /usr/local/bin/crane
+
+ENTRYPOINT [""]
