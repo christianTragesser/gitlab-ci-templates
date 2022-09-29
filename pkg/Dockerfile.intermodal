@@ -1,9 +1,10 @@
 ## Provide source and dependencies ##
-FROM golang:1.17-alpine AS source
-RUN CGO_ENABLED=0 GOOS=linux go get -u -ldflags '-extldflags "-static" -w -s' github.com/google/go-containerregistry/cmd/crane
+FROM golang:alpine AS source
+RUN go install github.com/goreleaser/goreleaser@latest && \
+go install github.com/goreleaser/nfpm/v2/cmd/nfpm@latest
 
 ## Create container image ##
-FROM gcr.io/kaniko-project/executor:debug as publish
-COPY --from=source /go/bin/crane /usr/local/bin/crane
-
-ENTRYPOINT [""]
+FROM golang:alpine as publish
+COPY --from=source /go/bin/goreleaser /usr/local/bin/goreleaser
+COPY --from=source /go/bin/nfpm /usr/local/bin/nfpm
+RUN apk --no-cache add git
