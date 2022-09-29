@@ -29,7 +29,7 @@
 .baseVariables:
   variables:
     DOCKERFILE_PATH: ./Dockerfile
-    REGISTRY_ENDPOINT: registry.gitlab.com/christiantragesser
+    REGISTRY_ENDPOINT: ${REGISTRY_ENDPOINT}
     IMAGE_REGISTRY_APP: ${REGISTRY_ENDPOINT}/${IMAGE_NAME}
     IMAGE_COMMIT_TAG: ${CI_COMMIT_SHORT_SHA}
 
