@@ -9,7 +9,7 @@
   script:
     - goreleaser build --snapshot
 
-.gh_release:
+.bin_release:
   extends:
     - .goreleaser_container
   script:
