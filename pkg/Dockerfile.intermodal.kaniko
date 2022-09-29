@@ -1,0 +1,8 @@
+FROM golang:alpine AS source
+RUN go install github.com/google/go-containerregistry/cmd/crane@latest
+
+## Create container image ##
+FROM gcr.io/kaniko-project/executor:debug as publish
+COPY --from=source /go/bin/crane /usr/local/bin/crane
+
+ENTRYPOINT [""]

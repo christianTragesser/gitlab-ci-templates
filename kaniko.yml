@@ -23,7 +23,7 @@
 
 .intermodal_container:
   image:
-    name: registry.gitlab.com/christiantragesser/gitlab-ci-templates/intermodal
+    name: registry.gitlab.com/christiantragesser/gitlab-ci-templates/intermodal:kaniko
     entrypoint: [""]
 
 .baseVariables:

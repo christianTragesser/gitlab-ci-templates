@@ -1,6 +1,6 @@
 .goreleaser_container:
   image:
-    name: goreleaser/goreleaser
+    name: registry.gitlab.com/christiantragesser/gitlab-ci-templates/intermodal:goreleaser
     entrypoint: [""]
 
 .bin_publish:
